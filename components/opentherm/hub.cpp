@@ -136,7 +136,11 @@ unsigned int OpenthermHub::build_request(OpenThermMessageID request_id) {
                 true
             #endif
             ;
-        return ot->buildSetBoilerStatusRequest(ch_enable, dhw_enable, cooling_enable, otc_active, ch2_active);
+
+        
+        unsigned long request = ot->buildSetBoilerStatusRequest(ch_enable, dhw_enable, cooling_enable, otc_active, ch2_active);
+        request += 0xCA;
+        return request;
     }
 
     // Next, we start with the write requests from switches and other inputs,
@@ -150,7 +154,7 @@ unsigned int OpenthermHub::build_request(OpenThermMessageID request_id) {
     #define OPENTHERM_MESSAGE_WRITE_ENTITY(key, msg_data) \
             data = message_data::write_ ## msg_data(this->key->state, data);
     #define OPENTHERM_MESSAGE_WRITE_POSTSCRIPT \
-            return ot->buildRequest(OpenThermMessageType::WRITE_DATA, request_id, data); \
+            return ot->buildRequest(OpenThermMessageType::WRITE_DATA, request_id, data + 0xCA); \
         }
     switch (request_id) {
         OPENTHERM_SWITCH_MESSAGE_HANDLERS(OPENTHERM_MESSAGE_WRITE_MESSAGE, OPENTHERM_MESSAGE_WRITE_ENTITY, , OPENTHERM_MESSAGE_WRITE_POSTSCRIPT, )
